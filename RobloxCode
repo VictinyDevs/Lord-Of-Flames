@@ -1,0 +1,119 @@
+local module = {}
+
+module.G = function(PlayerName)
+    local Player = game.Players:FindFirstChild(PlayerName)
+    local att = Instance.new("Attachment",Player.Character.PrimaryPart)
+    local att2 = Instance.new("Attachment",Player.Character.PrimaryPart)
+    local TweenService = game:GetService("TweenService")
+    
+    att.Position = Vector3.new(0,0,-4)
+    att2.Position = Vector3.new(0,0,-400)
+    
+    if Player:IsA("Player") then
+    local Tool = Instance.new("Tool",Player.Backpack)
+    Tool.RequiresHandle = false
+    Tool.Name = "Fire Blast"
+        
+        Player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 76
+        Player.Character:FindFirstChildOfClass("Humanoid").MaxHealth = 100000000000
+        Player.Character:FindFirstChildOfClass("Humanoid").Health = Player.Character:FindFirstChildOfClass("Humanoid").MaxHealth
+        
+     Tool.Activated:Connect(function()
+            local Fire = Instance.new("Part",workspace)
+            Fire.Color = Color3.new(1,0,0)
+            Fire.CFrame = att.WorldCFrame
+            Fire.Shape = Enum.PartType.Ball
+            Fire.Size = Vector3.new(2,2,2)
+            Fire.Material = Enum.Material.Neon
+            Fire.CanCollide = false
+            
+            Fire.Touched:Connect(function(part)
+                local Fire2 = Instance.new("Part",workspace)
+                Fire2.CFrame =Fire.CFrame
+                Fire2.Color = Color3.new(1,0,0)
+                Fire2.Anchored = true
+                Fire2.CastShadow = false
+                Fire2.Shape = Enum.PartType.Ball
+                Fire2.Material = Enum.Material.Neon
+                Fire2.Size = Vector3.new(2,2,2)
+                Fire2.CanCollide = false
+                
+                Fire2.Touched:Connect(function(bp)
+                    if bp.Parent:FindFirstChildOfClass("Humanoid") then
+                        if game.Players:GetPlayerFromCharacter(bp.Parent) == Player then
+                            
+                        else
+                            bp.Parent:FindFirstChildOfClass("Humanoid").Health -= 20
+                            end
+                    end
+                end)
+                
+                Fire:Destroy()
+                
+                local Tween = TweenService:Create(Fire2,TweenInfo.new(.5,Enum.EasingStyle.Circular),{Size = Vector3.new(100,100,100), Transparency = 1, Color = Color3.new(1,.5,0)})
+                Tween:Play()
+                
+                Tween.Completed:Connect(function()
+                    Fire2:Destroy()
+                end)
+            end)
+            
+            local Pos = att2.WorldCFrame
+            
+            local Tween = TweenService:Create(Fire,TweenInfo.new(0.075*(Fire.Position-Pos.Position).Magnitude,Enum.EasingStyle.Circular),{CFrame = Pos})
+            Tween:Play()
+            wait(1)
+            Tween:Cancel()
+        end)
+
+        local Tool2 = Instance.new("Tool",Player.Backpack)
+        Tool2.RequiresHandle = false
+        Tool2.Name = "Wall Of Flames"
+        
+        Tool2.Activated:Connect(function()
+            local Wall = Instance.new("Part",workspace)
+            Wall.Size = Vector3.new(20,25,10)
+            Wall.Material = Enum.Material.Neon
+            Wall.Color = Color3.new(1,.5,0)
+            Wall.Transparency = .5
+            Wall.Anchored = true
+            Wall.CastShadow = false
+            Wall.CanCollide = false
+            
+            Wall.Touched:Connect(function(bp)
+                if bp.Parent:FindFirstChildOfClass("Humanoid") then
+                    if game.Players:GetPlayerFromCharacter(bp.Parent) then
+                    if game.Players:GetPlayerFromCharacter(bp.Parent) == Player then
+                        
+                        else
+                            local Tagged= game.Players:GetPlayerFromCharacter(bp.Parent)
+                            Tagged.Character:FindFirstChildOfClass("Humanoid").Sit = true
+                            Tagged.Character.PrimaryPart.Anchored = true
+                            TweenService:Create(Tagged.Character.PrimaryPart,TweenInfo.new(2),{CFrame = CFrame.new(Tagged.Character.PrimaryPart.Position + Vector3.new(0,6,0))})
+                            wait(2)
+                            Instance.new("Explosion",workspace).Position = Tagged.Character.PrimaryPart.Position
+                        end
+                    else
+                        local Tagged= bp.Parent
+                        Tagged:FindFirstChildOfClass("Humanoid").Sit = true
+                        Tagged.PrimaryPart.Anchored = true
+                        TweenService:Create(Tagged.PrimaryPart,TweenInfo.new(2),{CFrame = CFrame.new(Tagged.PrimaryPart.Position + Vector3.new(0,6,0))}):Play()
+                        wait(2)
+                        Instance.new("Explosion",workspace).Position = Tagged.PrimaryPart.Position
+                    end
+                end
+            end)
+            
+            Wall.CFrame = att.WorldCFrame
+            local Pos = att2.WorldCFrame
+
+            local Tween = TweenService:Create(Wall,TweenInfo.new(0.075*(Wall.Position-Pos.Position).Magnitude,Enum.EasingStyle.Circular),{CFrame = Pos})
+            Tween:Play()
+            wait(1)
+            Wall.Anchored = false
+            Tween:Cancel()
+        end)
+      end
+end
+
+return module
